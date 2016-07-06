@@ -1,8 +1,7 @@
 # nclouds
-I have always used saltstack for provisioning and configuration management in a cloud agnostic environments. For example I am deploying a Nodejs/mongo mobile game in AWS (USA) and Ali cloud(china) using saltstack. I know linux, Networking, saltstack and python. Not a fan of Ruby :-)
-I have been running really busy with this deployment so did not have enough time to fully complete the exercise.But I went through all the concepts and it seems very easy to do if I use salt but might have to spend dome time on chef cook books.
+I have always used saltstack for provisioning and configuration management in a cloud agnostic environments. I know linux, Networking, saltstack and python. Not a fan of Ruby :-)
+ I went through all the concepts and it seems very easy to do if I use salt but might have to spend dome time on chef cook books.
 
-Here is how I approached the problem:-
 
 1> Learnt cloud formation tried various different templates designed in designer. Some how ended up learning the I can use cloudformer tool to create a template from existing resources.
 
@@ -24,4 +23,3 @@ Here is how I approached the problem:-
      {{getv “/sandeep”}}
 
 
-I am sure I can pickup and learn how to use these tools if we rely heavily on them because I understand the underlying concepts very well.
