@@ -1,0 +1,181 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "vpc5f685737": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "172.31.0.0/16",
+        "InstanceTenancy": "default",
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true"
+      }
+    },
+    "subnet5268573a": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "172.31.16.0/20",
+        "AvailabilityZone": "us-west-2a",
+        "VpcId": {
+          "Ref": "vpc5f685737"
+        }
+      }
+    },
+    "igw5368573b": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+      }
+    },
+    "dopt2b685743": {
+      "Type": "AWS::EC2::DHCPOptions",
+      "Properties": {
+        "DomainName": "us-west-2.compute.internal",
+        "DomainNameServers": [
+          "AmazonProvidedDNS"
+        ]
+      }
+    },
+    "rtb29685741": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "vpc5f685737"
+        }
+      }
+    },
+    "test": {
+      "Type": "AWS::OpsWorks::Stack",
+      "Properties": {
+        "DefaultAvailabilityZone": "us-west-2a",
+        "DefaultInstanceProfileArn": "arn:aws:iam::437265219185:instance-profile/aws-opsworks-ec2-role",
+        "DefaultOs": "Amazon Linux 2016.03",
+        "DefaultSubnetId": {
+          "Ref": "subnet5268573a"
+        },
+        "Name": "test",
+        "HostnameTheme": "Layer_Dependent",
+        "ServiceRoleArn": "arn:aws:iam::437265219185:role/aws-opsworks-service-role",
+        "UseCustomCookbooks": "true",
+        "UseOpsworksSecurityGroups": "true",
+        "VpcId": {
+          "Ref": "vpc5f685737"
+        },
+        "Attributes": {
+          "Color": "rgb(209, 105, 41)"
+        },
+        "ConfigurationManager": {
+          "Name": "Chef",
+          "Version": "12"
+        }
+      }
+    },
+    "layeretcd1": {
+      "Type": "AWS::OpsWorks::Layer",
+      "Properties": {
+        "AutoAssignElasticIps": "false",
+        "AutoAssignPublicIps": "true",
+        "EnableAutoHealing": "true",
+        "Name": "etcd",
+        "Shortname": "etcd",
+        "Type": "custom",
+        "StackId": {
+          "Ref": "test"
+        },
+        "CustomRecipes": {
+          "Setup": [
+            "etcd::setup"
+          ]
+        }
+      }
+    },
+    "59a8ba528c704fe88837d0fe39e7533d": {
+      "Type": "AWS::OpsWorks::Instance",
+      "Properties": {
+        "AmiId": "ami-f303fb93",
+        "Architecture": "x86_64",
+        "AvailabilityZone": "us-west-2a",
+        "InstallUpdatesOnBoot": "true",
+        "InstanceType": "t2.micro",
+        "Os": "Amazon Linux 2016.03",
+        "RootDeviceType": "ebs",
+        "StackId": {
+          "Ref": "test"
+        },
+        "SubnetId": {
+          "Ref": "subnet5268573a"
+        },
+        "LayerIds": [
+          {
+            "Ref": "layeretcd1"
+          }
+        ]
+      }
+    },
+    "sgAWSncloudsWebServerSecurityGroupGMBKPVZ2MF72": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Enable HTTPS access via port 443",
+        "VpcId": {
+          "Ref": "vpc5f685737"
+        }
+      }
+    },
+    "gw1": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "vpc5f685737"
+        },
+        "InternetGatewayId": {
+          "Ref": "igw5368573b"
+        }
+      }
+    },
+    "route1": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {
+          "Ref": "rtb29685741"
+        },
+        "GatewayId": {
+          "Ref": "igw5368573b"
+        }
+      },
+      "DependsOn": "gw1"
+    },
+    "dchpassoc1": {
+      "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
+      "Properties": {
+        "VpcId": {
+          "Ref": "vpc5f685737"
+        },
+        "DhcpOptionsId": {
+          "Ref": "dopt2b685743"
+        }
+      }
+    },
+    "ingress1": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgAWSncloudsWebServerSecurityGroupGMBKPVZ2MF72"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "443",
+        "ToPort": "443",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "egress1": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgAWSncloudsWebServerSecurityGroupGMBKPVZ2MF72"
+        },
+        "IpProtocol": "-1",
+        "CidrIp": "0.0.0.0/0"
+      }
+    }
+  },
+  "Description": ""
+}
